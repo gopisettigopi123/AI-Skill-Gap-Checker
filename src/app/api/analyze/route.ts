@@ -33,13 +33,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-lite-latest" });
 
     const prompt = `
       You are an expert ATS (Applicant Tracking System) and technical recruiter.
       Analyze the provided Resume against the Job Description.
 
       Extract the skills from both, compare them, and provide a verdict on the candidate's fit.
+      
+      CRITICAL EDGE CASES TO HANDLE:
+      1. Normalize skill names (e.g., treat "JS" and "JavaScript", "Node" and "Node.js", "ExpressJS" and "Express.js", "Mongo" and "MongoDB" as the exact same skill).
+      2. Remove any duplicate skills before performing the comparison.
+      3. If the Job Description has no explicit bulleted skills but only paragraphs, INFER the required technologies (e.g., React, Docker, AWS) from the text.
       
       Output exactly and ONLY valid JSON matching this schema:
       {

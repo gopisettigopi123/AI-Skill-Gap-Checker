@@ -113,8 +113,19 @@ export default function Home() {
     }
   };
 
-  const handleSelectHistory = (item: AnalysisResult) => {
-    setResult(item);
+  const handleDeleteHistory = (id: string) => {
+    const newHistory = history.filter((item) => item.id !== id);
+    setHistory(newHistory);
+    localStorage.setItem("resume_analysis_history", JSON.stringify(newHistory));
+    
+    // Clear currently viewed result if it was just deleted
+    if (result?.id === id) {
+      setResult(null);
+    }
+  };
+
+  const handleSelectHistory = (selectedResult: AnalysisResult) => {
+    setResult(selectedResult);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -265,7 +276,11 @@ export default function Home() {
           {/* Sidebar Area */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
-              <HistorySidebar history={history} onSelect={handleSelectHistory} />
+              <HistorySidebar 
+                history={history} 
+                onSelect={handleSelectHistory} 
+                onDelete={handleDeleteHistory}
+              />
             </div>
           </div>
 
