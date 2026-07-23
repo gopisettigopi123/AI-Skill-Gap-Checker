@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import mammoth from "mammoth";
 
 // Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
       {
         "matchedSkills": ["Skill 1", "Skill 2"],
         "missingSkills": ["Skill 3", "Skill 4"],
-        "matchPercentage": 75, // integer 0-100 based on how well the skills match
+        "matchPercentage": 75, // Integer 0-100. MUST be calculated exactly as: (matchedSkills.length / (matchedSkills.length + missingSkills.length)) * 100
         "verdict": "Qualified" | "Almost There" | "Not Yet",
         "reasons": [
           "Reason 1 for the verdict (concise)",
@@ -83,6 +84,22 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         );
       }
+    } else if (resumeFile && resumeFile.name.endsWith(".docx")) {
+      try {
+        const arrayBuffer = await resumeFile.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const docxResult = await mammoth.extractRawText({ buffer });
+        
+        parts.push({
+          text: `\n\nCandidate Resume:\n${docxResult.value}`,
+        });
+      } catch (error) {
+        console.error("DOCX Processing Error:", error);
+        return NextResponse.json(
+          { error: "Failed to process DOCX file" },
+          { status: 500 }
+        );
+      }
     } else if (resumeText) {
       parts.push({
         text: `\n\nCandidate Resume:\n${resumeText}`,
@@ -93,6 +110,7 @@ export async function POST(req: NextRequest) {
       contents: [{ role: "user", parts }],
       generationConfig: {
         responseMimeType: "application/json",
+        temperature: 0,
       },
     });
 

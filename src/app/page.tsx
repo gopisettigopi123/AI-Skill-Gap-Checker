@@ -49,6 +49,7 @@ export default function Home() {
     onDrop,
     accept: {
       "application/pdf": [".pdf"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
     },
     maxFiles: 1,
   });
@@ -197,7 +198,7 @@ export default function Home() {
                       ) : (
                         <>
                           <UploadCloud className="w-8 h-8 text-muted-foreground mb-2" />
-                          <p className="text-sm font-medium">Drag & drop PDF here</p>
+                          <p className="text-sm font-medium">Drag & drop PDF/DOCX here</p>
                           <p className="text-xs text-muted-foreground mt-1">or click to browse</p>
                         </>
                       )}
